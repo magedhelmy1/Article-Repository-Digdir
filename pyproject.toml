@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "digdir"
-version = "0.1.0"
+version = "0.1.22"
 authors = ["Maged Helmy <maged@newcode.ai>"]
 readme = "README.md"
 description = "Digitaliseringsdirektoratet - Norwegian Digitalisation Agency"
@@ -12,6 +12,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
+black = "^24.2.0"
+pytest = "^8.0.1"
 
 
 [build-system]

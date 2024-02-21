@@ -12,3 +12,7 @@ ist
 
 dist/digdir-0.1.0.tar.gz
 dist/digdir-0.1.0-py3-none-any.whl
+.env
+dist/**
+tests/__pycache__/**
+src/digdir/__pycache__/**
