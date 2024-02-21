@@ -20,6 +20,6 @@ release-patch commit-message='': # Default value is an empty string
     git add .
     git commit --no-verify -m "${commit-message:-Version bump} - Version $(poetry version -s)"
     git push
-    git tag -a "$NEW_VERSION" -m "Version $NEW_VERSION"
+    git tag -a "$(poetry version -s)" -m "Version $(poetry version -s)"
     git push origin --tags
     poetry publish
