@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "digdir"
+version = "0.1.0"
+authors = ["Maged Helmy <maged@newcode.ai>"]
+readme = "README.md"
+description = "Digitaliseringsdirektoratet - Norwegian Digitalisation Agency"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project.urls]
+Homepage = "https://github.com/magedhelmy1/digdir"
+Issues = "https://github.com/magedhelmy1/digdir/issues"
