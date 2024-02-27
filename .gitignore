@@ -16,3 +16,4 @@ dist/digdir-0.1.0-py3-none-any.whl
 dist/**
 tests/__pycache__/**
 src/digdir/__pycache__/**
+principal_component_plot.png
