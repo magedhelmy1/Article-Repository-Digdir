@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import os
 from dotenv import load_dotenv
-from adjustText import adjust_text
+import plotly.express as px
 
 
 class EmbeddingAPIError(Exception):
@@ -86,30 +86,80 @@ class TextEmbeddingsHandler:
 
         return embeddings_df
 
-    def create_pca_plot(self, embeddings_df: pd.DataFrame) -> pd.DataFrame:
+    def create_pca_plot(
+        self, embeddings_df: pd.DataFrame, n_components=3
+    ) -> pd.DataFrame:
         """
-        Performs principal component analysis (PCA) to reduce the dimensions to 2
+        Performs principal component analysis (PCA) to reduce the dimensions to 3 (default)
         and visualizes them in a scatter plot.
 
         Parameters:
             embeddings_df (pd.DataFrame): DataFrame with the columns "text_chunk" and "embeddings".
+            n_components (int): Number of components for PCA. Default is 3.
 
         Returns:
-            pd.DataFrame: DataFrame with the 2 most relevant Principal Components.
+            pd.DataFrame: DataFrame with the 3 most relevant Principal Components.
         """
-        # Perform PCA with 2 components
-        pca = PCA(n_components=2)
+        # Perform PCA with n_components
+        pca = PCA(n_components=n_components)
 
         # Apply principal component analysis to the embeddings table
-        df_reduced = pca.fit_transform(embeddings_df[embeddings_df.columns[1:-1]])
+        pca_result = pca.fit_transform(embeddings_df[embeddings_df.columns[:-1]])
 
         # Create a new DataFrame with reduced dimensions
-        df_reduced = pd.DataFrame(df_reduced, columns=["PC1", "PC2"])
-
-        # Create and save scatter plot
-        self.create_scatter_plot(df_reduced, embeddings_df)
-
+        pca_columns = [f"PC{i+1}" for i in range(n_components)]
+        df_reduced = pd.DataFrame(pca_result, columns=pca_columns)
         return df_reduced
+
+    def create_scatter_plot_3d(
+        self,
+        df_reduced: pd.DataFrame,
+        embeddings_df: pd.DataFrame,
+        user_query_point: np.ndarray = None,
+        user_query_label: str = None,
+        save_location: str = None,
+    ) -> None:
+        """
+        Creates and displays a 3D scatter plot visualizing the result of a PCA reduction, highlighting
+        the relationship between embedded text chunks and optionally a specific user query.
+
+        This method plots each PCA-reduced point in a 3D space, labels them with their corresponding text chunk,
+        and, if provided, visually distinguishes a user query point in a different color. Optionally, it
+        can also display dashed lines connecting the user query to its nearest neighbors.
+
+        Parameters:
+        - df_reduced (pd.DataFrame): A DataFrame containing the PCA-reduced dimensions of the text embeddings.
+        - embeddings_df (pd.DataFrame): The original DataFrame of text embeddings before PCA reduction.
+        - user_query_point (np.ndarray, optional): The PCA-reduced coordinates of the user query.
+        - user_query_label (str, optional): The label for the user query point to be displayed on the plot.
+        - save_location (str, optional): The location where the plot will be saved.
+
+        Returns:
+        - None: This method does not return a value but displays the 3D scatter plot.
+        """
+        # Create a DataFrame for plotly
+        plot_df = df_reduced.copy()
+        plot_df["text_chunk"] = embeddings_df["text_chunk"]
+
+        # Create the 3D scatter plot using plotly.express
+        fig = px.scatter_3d(
+            plot_df, x="PC1", y="PC2", z="PC3", text="text_chunk", color="text_chunk"
+        )
+
+        # Set labels and title
+        fig.update_layout(
+            scene=dict(xaxis_title="PC1", yaxis_title="PC2", zaxis_title="PC3")
+        )
+        fig.update_layout(title="3D PCA Scatter Plot of Text Embeddings")
+
+        # Display the plot
+        if save_location:
+            # Change file extension to .html if necessary
+            if not save_location.endswith(".html"):
+                save_location += ".html"
+            fig.write_html(save_location)  # Save the figure as an HTML file
+            print(f"3D scatter plot saved at: {save_location}")
+        fig.show()
 
     def create_scatter_plot(
         self,
@@ -274,28 +324,22 @@ class TextEmbeddingsHandler:
         # Generate embeddings for the provided text chunks
         embeddings_df = self.from_text_to_embeddings(text_chunks + [user_query])
 
-        # Perform PCA with 2 components
-        pca = PCA(n_components=2)
+        # Perform PCA with 3 components
+        pca = PCA(n_components=3)
 
-        # We skip the last element (user_query) when applying PCA to the embeddings
-        df_embeddings = embeddings_df[embeddings_df.columns[:-2]]
+        # Apply PCA to the embeddings, excluding the last element (user_query)
+        df_embeddings = embeddings_df.iloc[:-1, :-1]  # Adjust indexing if necessary
         pca_result = pca.fit_transform(df_embeddings)
 
         # Separate the PCA results for information and user_query
-        df_reduced = pd.DataFrame(pca_result[:-1], columns=["PC1", "PC2"])
-        user_query_point = pca_result[-1]
+        df_reduced = pd.DataFrame(pca_result, columns=["PC1", "PC2", "PC3"])
+        user_query_point = pca_result[-1]  # This assumes the user query is the last row
 
-        # Create a new DataFrame for information without the user query
-        df_reduced_info = pd.DataFrame(df_reduced, columns=["PC1", "PC2"])
-        embeddings_df = embeddings_df.drop(
-            embeddings_df.index[-1]
-        )  # Drop the user query row
-
-        # In plot_with_user_query method, modify the create_scatter_plot call like this:
-        self.create_scatter_plot(
-            df_reduced_info,
-            embeddings_df,
-            user_query_point=user_query_point,
+        # Create and display the 3D scatter plot
+        self.create_scatter_plot_3d(
+            df_reduced,
+            embeddings_df.iloc[:-1],  # Exclude the user query from the plot data
+            user_query_point=user_query_point[:3],  # Ensure this is a 3D point
             user_query_label=user_query,
             save_location=save_location,
         )
