@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import os
 from dotenv import load_dotenv
+from adjustText import adjust_text
 
 
 class EmbeddingAPIError(Exception):
@@ -30,7 +31,7 @@ class EmbeddingAPIError(Exception):
 
 class TextEmbeddingsHandler:
     BASE_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/"
-    DEFAULT_MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
+    DEFAULT_MODEL_ID = "sentence-transformers/bert-base-nli-mean-tokens"
 
     def __init__(self, hf_token: str, model_id: str = DEFAULT_MODEL_ID):
         if not hf_token:
@@ -144,33 +145,30 @@ class TextEmbeddingsHandler:
         Returns:
         - None: This method does not return a value but displays the scatter plot and saves it as an image file.
         """
-        if not os.path.isdir(os.path.dirname(save_location)):
+        if save_location and not os.path.isdir(os.path.dirname(save_location)):
             raise FileNotFoundError("Save location directory does not exist.")
 
         plt.figure(figsize=(10, 7))
-        scatter = plt.scatter(
-            df_reduced["PC1"], df_reduced["PC2"], label="Information Provided"
+        plt.scatter(
+            df_reduced["PC1"],
+            df_reduced["PC2"],
+            label="Information Provided",
+            alpha=0.7,
         )
 
-        # Optionally add labels to each point for clarity
+        texts = []
+        # Add labels to each point for clarity, storing in the texts list for later adjustment
         for i, label in enumerate(embeddings_df["text_chunk"].to_list()):
-            plt.text(
-                df_reduced["PC1"][i] + 0.003,
-                df_reduced["PC2"][i] + 0.003,
-                label,
-                fontsize=9,
+            texts.append(
+                plt.text(
+                    df_reduced["PC1"][i] + 0.01,
+                    df_reduced["PC2"][i] + 0.01,
+                    label,
+                    fontsize=9,
+                )
             )
 
-        # Plot user query point if provided
         if user_query_point is not None and user_query_label is not None:
-            distances = df_reduced.apply(
-                lambda x: norm(user_query_point - np.array([x["PC1"], x["PC2"]])),
-                axis=1,
-            )
-            closest_points_indices = distances.nsmallest(
-                3
-            ).index  # Updated to get only the closest 3 points
-
             plt.scatter(
                 user_query_point[0],
                 user_query_point[1],
@@ -178,44 +176,48 @@ class TextEmbeddingsHandler:
                 label="User Query",
                 zorder=5,
             )
-            plt.text(
-                user_query_point[0] + 0.003,
-                user_query_point[1] + 0.003,
-                user_query_label,
-                fontsize=9,
-                color="green",
+            # Adding user query label to texts list
+            texts.append(
+                plt.text(
+                    user_query_point[0] + 0.01,
+                    user_query_point[1] + 0.01,
+                    user_query_label,
+                    fontsize=9,
+                    color="green",
+                )
             )
 
-        plt.xlabel("Embedding Dimension 1")
-        plt.ylabel("Embedding Dimension 2")
-        plt.title("Semantic Text Embedding Visualization")
-
-        plt.legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), ncol=3)
-
-        if user_query_point is not None:
-            # Calculate distances to the user query point and sort them
+            # Calculate distances only if the user query point is provided
             distances = df_reduced.apply(
                 lambda x: norm(user_query_point - np.array([x["PC1"], x["PC2"]])),
                 axis=1,
             )
-            closest_points_indices = distances.nsmallest(3).index
+            closest_points_indices = distances.nsmallest(
+                3
+            ).index  # Get only the closest 3 points
 
             # Draw dashed lines to the closest 3 points
             for index in closest_points_indices:
-                if index < len(df_reduced):
-                    plt.plot(
-                        [user_query_point[0], df_reduced.loc[index, "PC1"]],
-                        [user_query_point[1], df_reduced.loc[index, "PC2"]],
-                        "k--",
-                        linewidth=0.5,
-                    )
+                plt.plot(
+                    [user_query_point[0], df_reduced.iloc[index]["PC1"]],
+                    [user_query_point[1], df_reduced.iloc[index]["PC2"]],
+                    "k--",
+                    linewidth=0.5,
+                )
 
+        # Optimizing label positions to minimize overlap
+        # adjust_text(texts, arrowprops=dict(arrowstyle="->", color="w"))
+
+        plt.xlabel("Embedding Dimension 1")
+        plt.ylabel("Embedding Dimension 2")
+        plt.title("Semantic Text Embedding Visualization")
+        plt.legend(loc="upper center", bbox_to_anchor=(0.5, 1.15), ncol=3)
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        absolute_image_path = os.path.abspath(save_location)
-
-        plt.savefig(absolute_image_path, format="png", bbox_inches="tight")
-        print(f"Scatter plot saved at: {absolute_image_path}")
+        if save_location:
+            absolute_image_path = os.path.abspath(save_location)
+            plt.savefig(absolute_image_path, format="png", bbox_inches="tight")
+            print(f"Scatter plot saved at: {absolute_image_path}")
 
         plt.show()
 
@@ -300,18 +302,18 @@ class TextEmbeddingsHandler:
 
     def analyze_text_embeddings(
         self,
-        user_query="The blue is blue.",
+        user_query="army",
         information=[
-            "The sky is blue.",
-            "The grass is green.",
-            "The sun is shining.",
-            "I love chocolate.",
-            "Pizza is delicious.",
-            "Coding is fun.",
-            "Roses are red.",
-            "Violets are blue.",
-            "Water is essential for life.",
-            "The moon orbits the Earth.",
+            "våpen",
+            "ørner",
+            "lillestrøm",
+            "ski",
+            "ferie",
+            "familie",
+            "beard in mailbox.",
+            "Burgers with fries are tasty.",
+            "Moustache is cool.",
+            "Norge er et vakkert land.",
         ],
         save_location="./principal_component_plot.png",
     ):
