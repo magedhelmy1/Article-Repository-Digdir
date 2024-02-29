@@ -39,13 +39,39 @@ def stop_tensorboard():
         st.success("TensorBoard has been stopped.")
 
 
+st.markdown(
+    """
+    <a href="https://github.com/magedhelmy1/Article-Repository-Digdir" target="_blank">
+        <button style="
+            background-color: #008CBA; /* Blue */
+            color: white;
+            padding: 15px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 12px;
+            border: 2px solid #004C8C; /* Darker blue */
+            transition-duration: 0.4s;
+            box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24), 0 17px 50px 0 rgba(0,0,0,0.19);
+        ">
+            View Code on GitHub
+        </button>
+    </a>
+    """,
+    unsafe_allow_html=True,
+)
 # UI Setup
 st.header("Embeddings Visualization")
 hf_token_input = st.text_input(
     label="Hugging Face Token",
     value="hf_XXXXX",
-    help="Please enter your Hugging Face API token. How to get a token?",
+    help="Please enter your Hugging Face API token. [How to get a token?](https://huggingface.co/docs/hub/security-tokens)",
 )
+
+
 model_id_input = st.selectbox(
     "Model ID",
     options=model_choices,
@@ -57,7 +83,7 @@ default_text_for_embedding = "\n".join(embedding_test_items)
 user_texts = st.text_area(
     "Texts for Embedding",
     height=450,
-    help="write each word/sentence on a new line. Example: våpen, ørner, lillestrøm, ski, ferie, familie, beard in mailbox, Burgers with fries are tasty, Moustache is cool, Norge er et vakkert land.",
+    help="write each word or sentence on a new line. Example: ski ferie familie",
     value=default_text_for_embedding,
 )
 
