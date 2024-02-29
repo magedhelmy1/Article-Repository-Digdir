@@ -15,18 +15,38 @@ This repository is dedicated to the exploration and detection of biases within v
 
 Instructions on how to set up the project environment:
 
-[TODO: Add installation instructions]
-```bash
+## Installation
 
+Follow these instructions to set up the project environment:
+
+### Prerequisites:
+Ensure you have **Python 3.11** and **Poetry** installed on your system.
+
+#### Python Installation:
+- **Windows**: Visit [Python Releases for Windows](https://www.python.org/downloads/windows/) and download the latest installer for Python 3.11.
+- **macOS**: Visit [Python Releases for Mac OS X](https://www.python.org/downloads/mac-osx/) and download the latest installer for Python 3.11.
+
+#### Poetry Installation:
+Poetry is a tool for dependency management and packaging in Python. To install Poetry, follow the instructions on the [official Poetry website](https://python-poetry.org/docs/#installing-with-the-official-installer).
+
+### Setting up the Project Environment:
+After installing the prerequisites, execute the following commands in your terminal:
+
+```bash
+poetry init
+poetry shell
+poetry install
+streamlit run src/digdir/vectorEmbedings/visualize_embeddings.py 
 ```
 
-## Usage
+These commands will:
 
-[TODO: Add usage instructions]
-Details on how to use the repository, including running scripts, testing methodologies, and evaluating results.
+1. Initialize a new poetry environment for your project.
+2. Activate the poetry shell, creating an isolated environment for your dependencies.
+3. Install the necessary dependencies for the project specified in the `pyproject.toml` file.
+4. Run the Streamlit app located at `src/digdir/vectorEmbedings/visualize_embeddings.py`.
 
-```bash
-```
+Remember to navigate to your project directory before executing these commands.
 
 ## Contributing
 
