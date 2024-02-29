@@ -4737,6 +4737,21 @@ watchdog = {version = ">=2.1.5", markers = "platform_system != \"Darwin\""}
 snowflake = ["snowflake-connector-python (>=2.8.0)", "snowflake-snowpark-python (>=0.9.0)"]
 
 [[package]]
+name = "streamlit-tensorboard"
+version = "0.0.2"
+description = "Streamlit component for TensorBoard"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "streamlit-tensorboard-0.0.2.tar.gz", hash = "sha256:b9bf0407e844928e9c23a78064e01beb6e58f0ca9c9b4e34836698e0fcd11309"},
+    {file = "streamlit_tensorboard-0.0.2-py3-none-any.whl", hash = "sha256:9da8ba61aa0c3b8cf06b0968e1e328eac8317828ed006e40fdf2ed50fa7d49a7"},
+]
+
+[package.dependencies]
+streamlit = ">=0.63"
+tensorboard = ">=2.5.0"
+
+[[package]]
 name = "sympy"
 version = "1.12"
 description = "Computer algebra system (CAS) in Python"
@@ -6020,4 +6035,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "0e03bb39d1ba05c2fc8a79ecef092117fa13bd363fc947fd94a65cd66d1ec5f7"
+content-hash = "63eb187ed5b30281c51e4991fff9b8c9ab4a7fff066ed5a981511357e856c986"

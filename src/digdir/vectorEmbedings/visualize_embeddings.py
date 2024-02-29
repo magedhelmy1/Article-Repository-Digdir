@@ -10,6 +10,11 @@ from digdir.vectorEmbedings.app_sample_data import (
     embedding_test_items,
     model_choices,
 )
+from streamlit_tensorboard import st_tensorboard
+from dotenv import load_dotenv
+
+load_dotenv()
+local_dev_mode = os.getenv("LOCAL")
 
 
 # Utility Functions
@@ -115,18 +120,24 @@ if visualize_button_placeholder.button("Visualize Embeddings"):
                 embeddings_df, save_location=log_dir
             )
 
-            # Launch TensorBoard and temporarily store the process in session_state
-            port, tb_process = launch_tensorboard(log_dir)
-            st.session_state["tb_process"] = tb_process
+            if local_dev_mode:
+                print("Running in local dev mode")
+                # Launch TensorBoard and temporarily store the process in session_state
+                port, tb_process = launch_tensorboard(log_dir)
+                time.sleep(5)
+                st.session_state["tb_process"] = tb_process
+
+                # Generating URL and displaying success message
+                tb_url = f"http://localhost:{port}?darkMode=true#projector"
+                st.success(
+                    f"TensorBoard is running. [Click here to view]({tb_url}) it in a new tab."
+                )
+            else:
+                path = os.path.join(log_dir, "embedding-visualization")
+                st_tensorboard(logdir=path, port=6006, width=1000)
 
             # Pause to ensure TensorBoard has time to initialize
-            time.sleep(5)
 
-            # Generating URL and displaying success message
-            tb_url = f"http://localhost:{port}?darkMode=true#projector"
-            st.success(
-                f"TensorBoard is running. [Click here to view]({tb_url}) it in a new tab."
-            )
 
 if "tb_process" in st.session_state:
     stop_button_placeholder = st.empty()
