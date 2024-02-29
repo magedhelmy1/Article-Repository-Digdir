@@ -17,3 +17,7 @@ dist/**
 tests/__pycache__/**
 src/digdir/__pycache__/**
 principal_component_plot.png
+src/digdir/vectorEmbedings/logs/**
+src/digdir/vectorEmbedings/__pycache__/**
+logs/**
+src/digdir/vectorEmbedings/app_sample_data_1.py
